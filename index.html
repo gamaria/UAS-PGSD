@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Online Resmi</title>
+    <style>
+        /* Gaya Tampilan Web */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            -webkit-user-select: none; /* Mencegah seleksi teks di browser Chrome/Safari */
+            -moz-user-select: none;    /* Mencegah seleksi teks di Firefox */
+            -ms-user-select: none;     /* Mencegah seleksi teks di IE/Edge */
+            user-select: none;          /* Mencegah seleksi teks umum */
+        }
+        header {
+            background-color: #d93025;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .timer-box {
+            font-size: 24px;
+            font-weight: bold;
+            background: white;
+            color: #d93025;
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 140px auto 40px auto; /* Memberi ruang agar tidak tertutup header */
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        iframe {
+            width: 100%;
+            border: none;
+            min-height: 800px;
+        }
+        /* Tampilan ketika waktu habis atau melanggar */
+        #block-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            color: black;
+            z-index: 9999;
+            text-align: center;
+            padding-top: 20%;
+            font-size: 28px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Fitur Timer -->
+    <header>
+        <div style="font-size: 18px; font-weight: bold;">UJIAN ONLINE - WAKTU TERBATAS</div>
+        <div class="timer-box" id="countdown">30:00</div>
+        <div style="font-size: 12px; margin-top: 3px;">Peringatan: Dilarang menyalin (Copy) pertanyaan atau membuka tab baru!</div>
+    </header>
+
+    <!-- Tempat Google Form -->
+    <div class="container" id="quiz-area">
+        <!-- SILAKAN GANTI URL DI BAWAH INI DENGAN LINK GOOGLE FORM ANDA -->
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfYourFormID/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>
+    </div>
+
+    <!-- Layar Pemblokir jika Waktu Habis -->
+    <div id="block-screen">
+        <span style="color: red; font-size: 50px;">⚠️ WAKTU HABIS!</span><br><br>
+        Waktu pengerjaan 30 menit telah selesai.<br>
+        Jawaban yang belum terkirim dianggap gugur.
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FITUR TIMER 30 MENIT (Otomatis Hapus Kuis)
+        // ==========================================
+        let waktuSisa = 30 * 60; // 30 menit diubah ke detik
+        const timerElement = document.getElementById('countdown');
+        const quizArea = document.getElementById('quiz-area');
+        const blockScreen = document.getElementById('block-screen');
+
+        const hitungMundur = setInterval(function() {
+            let menit = Math.floor(waktuSisa / 60);
+            let detik = waktuSisa % 60;
+
+            // Format agar selalu 2 digit (misal 05:09)
+            menit = menit < 10 ? '0' + menit : menit;
+            detik = detik < 10 ? '0' + detik : detik;
+
+            timerElement.innerHTML = menit + ":" + detik;
+
+            // Jika waktu tinggal 1 menit, ubah warna timer jadi merah berkedip
+            if (waktuSisa <= 60) {
+                timerElement.style.backgroundColor = '#d93025';
+                timerElement.style.color = 'white';
+            }
+
+            // Jika waktu habis
+            if (waktuSisa <= 0) {
+                clearInterval(hitungMundur);
+                quizArea.style.display = 'none'; // Sembunyikan Google Form
+                blockScreen.style.display = 'block'; // Tampilkan layar waktu habis
+            }
+
+            waktuSisa--;
+        }, 1000);
+
+        // ==========================================
+        // 2. FITUR ANTI-CHEATING (PROTEKSI COPY & KLIK KANAN)
+        // ==========================================
+        
+        // Mematikan Klik Kanan di halaman web
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            alert("Maaf, Klik Kanan dilarang selama ujian berlangsung!");
+        });
+
+        // Mematikan shortcut Keyboard (Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+S, dll)
+        document.onkeydown = function(e) {
+            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73)) {
+                alert("Fungsi shortcut ini dimatikan untuk mencegah kecurangan!");
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        // Mematikan fitur drag/seret teks
+        document.ondragstart = function() { return false; };
+    </script>
+
+</body>
+</html>
